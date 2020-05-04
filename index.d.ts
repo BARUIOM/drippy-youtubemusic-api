@@ -15,12 +15,6 @@ declare class YoutubeMusic {
      */
     search(query: string, limit?: number): Promise<Array<Track>>;
 
-    /**
-     * Build a Track object by given id, without metadata, to be used with ytdl-core
-     * @param id The track's unique id
-     */
-    getTrack(id: string): Track;
-
 }
 
 declare interface Track {

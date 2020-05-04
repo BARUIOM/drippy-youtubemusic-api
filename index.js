@@ -27,10 +27,6 @@ module.exports = class YoutubeMusic {
             .slice(0, limit).map(e => map(e['musicResponsiveListItemRenderer']));
     }
 
-    getTrack(id) {
-        return { id };
-    }
-
     static assign(params, data) {
         const object = {
             context: {
