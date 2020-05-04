@@ -1,0 +1,23 @@
+{
+    "name": "@drippy-music/yt-music-api",
+    "version": "1.0.0",
+    "description": "Youtube Music API for Node.JS",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "scripts": {
+        "deploy": "npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Drippy-Music/drippy-youtubemusic-api.git"
+    },
+    "author": "Vitor Mac",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Drippy-Music/drippy-youtubemusic-api/issues"
+    },
+    "homepage": "https://github.com/Drippy-Music/drippy-youtubemusic-api#readme",
+    "dependencies": {
+        "axios": "^0.19.2"
+    }
+}
