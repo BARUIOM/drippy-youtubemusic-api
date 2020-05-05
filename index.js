@@ -1,14 +1,37 @@
 const axios = require('axios').default;
 const api_url = 'https://music.youtube.com/youtubei/v1'
 
-const map = (object) => {
+const track = (object) => {
     const runs = [...object.flexColumns]
         .map(e => e['musicResponsiveListItemFlexColumnRenderer'].text.runs.map(e => e.text).join(''));
-    const artists = runs[1].split(/[,&]/g).map(e => e.trim());
-    const duration = (Number(runs[3].split(':')[0]) * 60) + Number(runs[3].split(':')[1]);
-    const id = object['doubleTapCommand'].watchEndpoint.videoId;
-    return { id, title: runs[0], artists, album: runs[2], duration };
+
+    if (runs[1] !== 'Artist') {
+        const id = object['doubleTapCommand'].watchEndpoint.videoId;
+        const duration = (Number(runs[4].split(':')[0]) * 60) + Number(runs[4].split(':')[1]);
+        switch (runs[1]) {
+            case 'Video':
+                return { id, title: runs[0], channel: runs[2] };
+            case 'Song':
+                const artists = runs[2].split(/[,&]/g).map(e => e.trim());
+                return { id, title: runs[0], artists, album: runs[3], duration };
+        }
+    }
 };
+
+const parse = (contents) => {
+    const top_result = [...find('Top result', contents).musicShelfRenderer.contents.map(e => track(e['musicResponsiveListItemRenderer']))][0];
+    const songs = [...find('Songs', contents).musicShelfRenderer.contents].map(e => track(e['musicResponsiveListItemRenderer']));
+    const videos = [...find('Videos', contents).musicShelfRenderer.contents.map(e => track(e['musicResponsiveListItemRenderer']))];
+
+    if (top_result) {
+        return { top_result, songs, videos };
+    }
+    return { songs, videos };
+};
+
+const find = (type, contents = []) => {
+    return contents.find(e => e.musicShelfRenderer.title.runs[0].text == type);
+}
 
 module.exports = class YoutubeMusic {
 
@@ -16,27 +39,26 @@ module.exports = class YoutubeMusic {
         this.api_key = api_key;
     }
 
-    async search(query, limit = 10) {
-        const data = YoutubeMusic.assign('Eg-KAQwIARAAGAAgACgAMABqCBADEAQQCRAF', { query });
+    async search(query) {
+        const data = YoutubeMusic.assign({ query });
         const res = await axios.post('/search', data, {
             baseURL: api_url,
             params: { key: this.api_key },
             headers: { 'Origin': 'https://music.youtube.com' }
         });
-        return [...res.data['contents'].sectionListRenderer.contents[0].musicShelfRenderer.contents]
-            .slice(0, limit).map(e => map(e['musicResponsiveListItemRenderer']));
+        return parse([...res.data['contents'].sectionListRenderer.contents]);
     }
 
-    static assign(params, data) {
+    static assign(data, params) {
         const object = {
             context: {
                 client: {
                     clientName: 'WEB_REMIX',
                     clientVersion: '0.1'
                 }
-            },
-            params: params,
+            }
         };
+        if (params) object['params'] = params;
         return Object.assign(object, data);
     }
 
