@@ -17,7 +17,7 @@ declare class YoutubeMusic {
 
 }
 
-declare interface SearchResult {
+export declare interface SearchResult {
 
     /**
      * The best result given by Youtube Music, it can be a Video or a Song
@@ -36,7 +36,7 @@ declare interface SearchResult {
 
 }
 
-declare interface Track {
+export declare interface Track {
 
     /**
      * The video id for this track
