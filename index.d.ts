@@ -51,18 +51,18 @@ export declare interface Track {
     /**
      * The track's artists
      */
-    artists?: Array<String>;
+    artists?: Array<string>;
 
     /**
      * The track's album name
      */
-    album?: String;
+    album?: string;
 
     /**
      * The track's duration in seconds
      */
-    duration: Number;
+    duration: number;
 
 }
 
-export = YoutubeMusic;
+export default YoutubeMusic;
