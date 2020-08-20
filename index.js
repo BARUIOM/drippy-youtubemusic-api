@@ -30,7 +30,8 @@ const parse = (contents) => {
 };
 
 const find = (type, contents = []) => {
-    return contents.find(e => e.musicShelfRenderer.title.runs[0].text == type);
+    return contents.filter(e => 'musicShelfRenderer' in e)
+        .find(e => e.musicShelfRenderer.title.runs[0].text == type);
 }
 
 module.exports = class YoutubeMusic {
