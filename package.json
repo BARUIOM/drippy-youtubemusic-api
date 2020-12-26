@@ -1,6 +1,6 @@
 {
     "name": "@drippy-music/yt-music-api",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "description": "Youtube Music API for Node.JS",
     "main": "index.js",
     "types": "index.d.ts",
