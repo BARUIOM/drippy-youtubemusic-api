@@ -1,37 +1,65 @@
 const axios = require('axios').default;
 const api_url = 'https://music.youtube.com/youtubei/v1'
 
-const track = (object) => {
-    const runs = [...object.flexColumns]
-        .map(e => e['musicResponsiveListItemFlexColumnRenderer'].text.runs.map(e => e.text).join(''));
+const track = ({ flexColumns = [], playlistItemData }) => {
+    const runs = flexColumns.map(e => {
+        const { musicResponsiveListItemFlexColumnRenderer } = e;
+        const { text: { runs: values = [] } } = musicResponsiveListItemFlexColumnRenderer;
+
+        return values.map(e => e.text).join('');
+    }).map(e => e.split('•')).flat().map(e => e.trim());
 
     if (runs[1] !== 'Artist') {
-        const id = object['doubleTapCommand'].watchEndpoint.videoId;
-        const duration = (Number(runs[4].split(':')[0]) * 60) + Number(runs[4].split(':')[1]);
+        const { videoId: id } = playlistItemData;
+        const duration = (() => {
+            const values = runs[4].split(':');
+
+            return (Number(values[0]) * 60) + Number(values[1]);
+        })();
+
         switch (runs[1]) {
             case 'Video':
-                return { id, title: runs[0], channel: runs[2] };
+                return { id, title: runs[0], artists: [runs[2]], duration };
             case 'Song':
-                const artists = runs[2].split(/[,&]/g).map(e => e.trim());
+                const artists = runs[2].split(/[,&]/g)
+                    .map(e => e.trim());
+
                 return { id, title: runs[0], artists, album: runs[3], duration };
         }
     }
 };
 
 const parse = (contents) => {
-    const top_result = [...find('Top result', contents).musicShelfRenderer.contents.map(e => track(e['musicResponsiveListItemRenderer']))][0];
-    const songs = [...find('Songs', contents).musicShelfRenderer.contents].map(e => track(e['musicResponsiveListItemRenderer']));
-    const videos = [...find('Videos', contents).musicShelfRenderer.contents.map(e => track(e['musicResponsiveListItemRenderer']))];
+    const top = find('Top result',
+        contents).map(track);
 
-    if (top_result) {
-        return { top_result, songs, videos };
-    }
-    return { songs, videos };
+    const songs = find('Songs',
+        contents).map(track);
+
+    const videos = find('Videos',
+        contents).map(track);
+
+    return [...top, ...songs, ...videos];
 };
 
-const find = (type, contents = []) => {
-    return contents.filter(e => 'musicShelfRenderer' in e)
-        .find(e => e.musicShelfRenderer.title.runs[0].text == type);
+const find = (type, array = []) => {
+    const object = array.filter(e => 'musicShelfRenderer' in e)
+        .find(e => {
+            const {
+                musicShelfRenderer: { title: { runs } }
+            } = e;
+            const [{ text }] = runs;
+
+            return text == type;
+        });
+
+    if (object !== undefined) {
+        return object['musicShelfRenderer'].contents.map(e =>
+            e['musicResponsiveListItemRenderer']
+        );
+    }
+
+    return [];
 }
 
 module.exports = class YoutubeMusic {
@@ -47,7 +75,12 @@ module.exports = class YoutubeMusic {
             params: { key: this.api_key },
             headers: { 'Origin': 'https://music.youtube.com' }
         });
-        return parse([...res.data['contents'].sectionListRenderer.contents]);
+
+        const {
+            contents: { sectionListRenderer: { contents = [] } }
+        } = res.data;
+
+        return parse(contents);
     }
 
     static assign(data, params) {

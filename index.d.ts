@@ -13,26 +13,7 @@ declare class YoutubeMusic {
      * @param query The query to search for
      * @param limit The limit value for the returned results
      */
-    search(query: string, limit?: number): Promise<SearchResult>;
-
-}
-
-export declare interface SearchResult {
-
-    /**
-     * The best result given by Youtube Music, it can be a Video or a Song
-     */
-    top_result?: Track;
-
-    /**
-     * The songs list
-     */
-    songs: Array<Track>;
-
-    /**
-     * The videos list
-     */
-    videos: Array<Track>;
+    search(query: string, limit?: number): Promise<Track[]>;
 
 }
 
