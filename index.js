@@ -9,7 +9,7 @@ const track = ({ flexColumns = [], playlistItemData }) => {
         return values.map(e => e.text).join('');
     }).map(e => e.split('•')).flat().map(e => e.trim());
 
-    if (runs[1] !== 'Artist') {
+    if (!['Artist', 'Playlist'].includes(runs[1])) {
         const { videoId: id } = playlistItemData;
         const duration = (() => {
             const values = runs[4].split(':');
@@ -39,7 +39,8 @@ const parse = (contents) => {
     const videos = find('Videos',
         contents).map(track);
 
-    return [...top, ...songs, ...videos];
+    return [...top, ...songs, ...videos]
+        .filter(e => e !== undefined);
 };
 
 const find = (type, array = []) => {
