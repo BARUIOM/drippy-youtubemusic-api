@@ -9,7 +9,7 @@ const track = ({ flexColumns = [], playlistItemData }) => {
         return values.map(e => e.text).join('');
     }).map(e => e.split('•')).flat().map(e => e.trim());
 
-    if (!['Artist', 'Playlist'].includes(runs[1])) {
+    if (!['Artist', 'Playlist', 'Album'].includes(runs[1])) {
         const { videoId: id } = playlistItemData;
         const duration = (() => {
             const values = runs[4].split(':');
@@ -57,7 +57,7 @@ const find = (type, array = []) => {
     if (object !== undefined) {
         return object['musicShelfRenderer'].contents.map(e =>
             e['musicResponsiveListItemRenderer']
-        );
+        ).filter(e => !('musicItemRendererDisplayPolicy' in e));
     }
 
     return [];
