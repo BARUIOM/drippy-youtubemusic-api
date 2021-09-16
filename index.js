@@ -1,3 +1,4 @@
+const { get } = require('lodash');
 const axios = require('axios').default;
 const api_url = 'https://music.youtube.com/youtubei/v1'
 
@@ -77,9 +78,9 @@ module.exports = class YoutubeMusic {
             headers: { 'Origin': 'https://music.youtube.com' }
         });
 
-        const {
-            contents: { sectionListRenderer: { contents = [] } }
-        } = res.data;
+        const contents = get(
+            res.data, 'contents.tabbedSearchResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents', []
+        );
 
         return parse(contents);
     }
